@@ -1,0 +1,78 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ .Values.prometheus.app }}
+spec:
+  replicas: {{ .Values.prometheus.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.prometheus.app }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.prometheus.app }}
+    spec:
+      containers:
+      - name: {{ .Values.prometheus.app }}
+        image: {{ .Values.prometheus.image.repository }}:{{ .Values.prometheus.image.tag }}
+        imagePullPolicy: {{ .Values.prometheus.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.prometheus.port }}
+        livenessProbe:
+          httpGet:
+            path: /graph
+            port: {{ .Values.prometheus.port }}
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 5
+        readinessProbe:
+          httpGet:
+            path: /graph
+            port: {{ .Values.prometheus.port }}
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 5
+---
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ .Values.grafana.app }}
+  labels:
+    app: {{ .Values.grafana.app }}
+spec:
+  replicas: {{ .Values.grafana.replicas }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.grafana.app }}
+    spec:
+      containers:
+      - name: {{ .Values.grafana.app }}
+        image: {{ .Values.grafana.image.repository }}:{{ .Values.grafana.image.tag }}
+        imagePullPolicy: {{ .Values.grafana.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.grafana.port }}
+        livenessProbe:
+          httpGet:
+            path: /
+            port: {{ .Values.grafana.port }}
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 5
+        readinessProbe:
+          httpGet:
+            path: /
+            port: {{ .Values.grafana.port }}
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 5
+        env:
+        - name: {{ .Values.grafana.env.name }}
+          value: {{ .Values.grafana.env.value }}

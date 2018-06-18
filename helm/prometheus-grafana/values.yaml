@@ -1,0 +1,24 @@
+prometheus:
+ app: prometheus
+ replicas: 1
+ image:
+  repository: learninghub/k8s_prometheus
+  tag: latest
+  pullPolicy: IfNotPresent
+ port: 9090
+ service:
+  type: LoadBalancer
+
+grafana:
+ app: grafana
+ replicas: 1
+ image:
+  repository: grafana/grafana
+  tag: 4.4.3
+  pullPolicy: IfNotPresent
+ port: 3000
+ env:
+  name: GF_SECURITY_ADMIN_PASSWORD
+  value: pass
+ service:
+  type: LoadBalancer
